@@ -1187,11 +1187,10 @@ body {background-color: red;}';
      *
      * @param string $css CSS text.
      * @test
+     * @expectedException \Sabberworm\CSS\Parsing\UnexpectedTokenException
      */
     public function invalidIdentifier($css)
     {
-        $this->expectException(UnexpectedTokenException::class);
-
         $oSettings = Settings::create()->withLenientParsing(false);
         $oParser = new Parser($css, $oSettings);
         $oParser->parse();
