@@ -102,7 +102,7 @@ class DeclarationBlock extends RuleSet
                 $aSearches = array_keys($aPlaceholders);
                 $aReplaces = array_values($aPlaceholders);
                 $this->aSelectors = array_map(
-                    function ($sSelector) use ($aSearches, $aReplaces) {
+                    static function ($sSelector) use ($aSearches, $aReplaces) {
                         return str_replace($aSearches, $aReplaces, $sSelector);
                     },
                     explode(',', $sSelectors)
