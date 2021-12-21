@@ -119,7 +119,8 @@ class ParserState
         $bCanParseCharacter = true;
 
         if ($bNameStartCodePoint) {
-            // Check if 3 code points would start an identifier. See <https://drafts.csswg.org/css-syntax-3/#would-start-an-identifier>.
+            // Check if 3 code points would start an identifier.
+            // See <https://drafts.csswg.org/css-syntax-3/#would-start-an-identifier>.
             $sNameStartCodePoint = '[a-zA-Z_]|[\x80-\xFF]';
             $sEscapeCode = '\\[^\r\n\f]';
 
