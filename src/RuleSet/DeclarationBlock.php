@@ -135,13 +135,14 @@ class DeclarationBlock extends RuleSet
     }
 
     /**
-     * Add placeholders for parenthetical/bracketed expressions in selectors which may contain commas that break exploding.
+     * Add placeholders for parenthetical expressions in selectors which may contain commas that break exploding.
      *
      * This prevents a single selector like `.widget:not(.foo, .bar)` from erroneously getting parsed in setSelectors as
      * two selectors `.widget:not(.foo` and `.bar)`.
      *
      * @param string $sSelectors Selectors.
-     * @return array First array value is the selectors with placeholders, and second value is the array of placeholders mapped to the original expressions.
+     * @return array First array value is the selectors with placeholders, and second value is the array of placeholders
+     *               mapped to the original expressions.
      */
     private function addSelectorExpressionPlaceholders($sSelectors)
     {
@@ -169,7 +170,9 @@ class DeclarationBlock extends RuleSet
                     $aPlaceholders[ $sPlaceholder ] = $sMatchedExpr;
 
                     // Update the CSS to replace the matched calc() with the placeholder function.
-                    $sSelectors = substr($sSelectors, 0, $iMatchOffset) . $sPlaceholder . substr($sSelectors, $iFinalOffset + 1);
+                    $sSelectors = substr($sSelectors, 0, $iMatchOffset)
+                                . $sPlaceholder
+                                . substr($sSelectors, $iFinalOffset + 1);
                     // Update offset based on difference of length of placeholder vs original matched calc().
                     $iFinalOffset += strlen($sPlaceholder) - strlen($sMatchedExpr);
                     break;
