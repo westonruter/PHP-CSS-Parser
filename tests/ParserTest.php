@@ -1190,7 +1190,7 @@ body {background-color: red;}';
      */
     public function invalidIdentifier($css)
     {
-        $this->setExpectedException(UnexpectedTokenException::class);
+        $this->expectException(UnexpectedTokenException::class);
 
         $oSettings = Settings::create()->withLenientParsing(false);
         $oParser = new Parser($css, $oSettings);
