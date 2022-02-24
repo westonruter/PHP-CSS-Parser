@@ -29,7 +29,7 @@ class Color extends CSSFunction
         $aColor = [];
         if ($oParserState->comes('#')) {
             $oParserState->consume('#');
-            $sValue = $oParserState->parseIdentifier(false);
+            $sValue = $oParserState->parseIdentifier(false, false);
             if ($oParserState->strlen($sValue) === 3) {
                 $sValue = $sValue[0] . $sValue[0] . $sValue[1] . $sValue[1] . $sValue[2] . $sValue[2];
             } elseif ($oParserState->strlen($sValue) === 4) {
