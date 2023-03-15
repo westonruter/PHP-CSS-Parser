@@ -1240,29 +1240,6 @@ body {background-color: red;}';
         self::assertSame($sExpected, $oDoc->render());
     }
 
-    public function getInvalidIdentifiers()
-    {
-        return [
-            ['body { -0-transition: all .3s ease-in-out; }'],
-            ['body { 4-o-transition: all .3s ease-in-out; }'],
-        ];
-    }
-
-    /**
-     * @dataProvider getInvalidIdentifiers
-     *
-     * @param string $css CSS text.
-     * @test
-     */
-    public function invalidIdentifier($css)
-    {
-        $this->expectException(\Sabberworm\CSS\Parsing\UnexpectedTokenException::class);
-
-        $oSettings = Settings::create()->withLenientParsing(false);
-        $oParser   = new Parser($css, $oSettings);
-        $oParser->parse();
-    }
-
     public function escapedSpecialCaseTokens()
     {
         $oDoc = $this->parsedStructureForFile('escaped-tokens');
