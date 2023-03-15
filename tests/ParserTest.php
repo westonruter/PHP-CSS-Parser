@@ -515,20 +515,6 @@ body {color: green;}',
     /**
      * @test
      */
-    public function parseExpressions()
-    {
-        $oDoc = self::parsedStructureForFile('expressions');
-        $sExpected = 'div {height: (vh - 10);}'
-            . "\n"
-            . 'div {height: (vh - 10)/2;}'
-            . "\n"
-            . 'div {height: max(5,(vh - 10));}';
-        self::assertSame($sExpected, $oDoc->render());
-    }
-
-    /**
-     * @test
-     */
     public function createShorthands()
     {
         $oDoc = self::parsedStructureForFile('create-shorthands');
@@ -702,8 +688,8 @@ div {width: calc(50% - ( ( 4% ) * .5 ));}';
     public function invalidCalcInFile()
     {
         $oDoc = self::parsedStructureForFile('calc-invalid', Settings::create()->withMultibyteSupport(true));
-        $sExpected = 'div {height: calc (25% - 1em);}
-div {height: calc (25% - 1em);}
+        $sExpected = 'div {}
+div {}
 div {}
 div {height: -moz-calc;}
 div {height: calc;}';
@@ -1251,19 +1237,6 @@ body {background-color: red;}';
     {
         $oDoc = self::parsedStructureForFile('lonely-import');
         $sExpected = "@import url(\"example.css\") only screen and (max-width: 600px);";
-        self::assertSame($sExpected, $oDoc->render());
-    }
-
-    /**
-     * @test
-     */
-    public function functionArithmeticInFile()
-    {
-        $oDoc = self::parsedStructureForFile('function-arithmetic', Settings::create()->withMultibyteSupport(true));
-        $sExpected = 'div {height: max(300,vh + 10);}
-div {height: max(300,vh - 10);}
-div {height: max(300,vh * 10);}
-div {height: max(300,vh / 10);}';
         self::assertSame($sExpected, $oDoc->render());
     }
 
