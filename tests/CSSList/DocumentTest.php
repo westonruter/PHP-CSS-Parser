@@ -11,14 +11,14 @@ use Sabberworm\CSS\RuleSet\DeclarationBlock;
 /**
  * @covers \Sabberworm\CSS\CSSList\Document
  */
-class DocumentTest extends TestCase
+final class DocumentTest extends TestCase
 {
     /**
      * @var Document
      */
     private $subject;
 
-    protected function setUp()
+    private function setUpTestcase()
     {
         $this->subject = new Document();
     }
@@ -28,6 +28,8 @@ class DocumentTest extends TestCase
      */
     public function implementsRenderable()
     {
+        $this->setUpTestcase();
+
         self::assertInstanceOf(Renderable::class, $this->subject);
     }
 
@@ -36,6 +38,8 @@ class DocumentTest extends TestCase
      */
     public function implementsCommentable()
     {
+        $this->setUpTestcase();
+
         self::assertInstanceOf(Commentable::class, $this->subject);
     }
 
@@ -44,13 +48,15 @@ class DocumentTest extends TestCase
      */
     public function getContentsInitiallyReturnsEmptyArray()
     {
+        $this->setUpTestcase();
+
         self::assertSame([], $this->subject->getContents());
     }
 
     /**
      * @return array<string, array<int, array<int, DeclarationBlock>>>
      */
-    public function contentsDataProvider()
+    public static function contentsDataProvider()
     {
         return [
             'empty array' => [[]],
@@ -68,6 +74,8 @@ class DocumentTest extends TestCase
      */
     public function setContentsSetsContents(array $contents)
     {
+        $this->setUpTestcase();
+
         $this->subject->setContents($contents);
 
         self::assertSame($contents, $this->subject->getContents());
@@ -78,11 +86,72 @@ class DocumentTest extends TestCase
      */
     public function setContentsReplacesContentsSetInPreviousCall()
     {
+        $this->setUpTestcase();
+
         $contents2 = [new DeclarationBlock()];
 
         $this->subject->setContents([new DeclarationBlock()]);
         $this->subject->setContents($contents2);
 
         self::assertSame($contents2, $this->subject->getContents());
+    }
+
+    /**
+     * @test
+     */
+    public function insertContentBeforeInsertsContentBeforeSibbling()
+    {
+        $this->setUpTestcase();
+
+        $bogusOne = new DeclarationBlock();
+        $bogusOne->setSelectors('.bogus-one');
+        $bogusTwo = new DeclarationBlock();
+        $bogusTwo->setSelectors('.bogus-two');
+
+        $item = new DeclarationBlock();
+        $item->setSelectors('.item');
+
+        $sibling = new DeclarationBlock();
+        $sibling->setSelectors('.sibling');
+
+        $this->subject->setContents([$bogusOne, $sibling, $bogusTwo]);
+
+        self::assertCount(3, $this->subject->getContents());
+
+        $this->subject->insertBefore($item, $sibling);
+
+        self::assertCount(4, $this->subject->getContents());
+        self::assertSame([$bogusOne, $item, $sibling, $bogusTwo], $this->subject->getContents());
+    }
+
+    /**
+     * @test
+     */
+    public function insertContentBeforeAppendsIfSibblingNotFound()
+    {
+        $this->setUpTestcase();
+
+        $bogusOne = new DeclarationBlock();
+        $bogusOne->setSelectors('.bogus-one');
+        $bogusTwo = new DeclarationBlock();
+        $bogusTwo->setSelectors('.bogus-two');
+
+        $item = new DeclarationBlock();
+        $item->setSelectors('.item');
+
+        $sibling = new DeclarationBlock();
+        $sibling->setSelectors('.sibling');
+
+        $orphan = new DeclarationBlock();
+        $orphan->setSelectors('.forever-alone');
+
+        $this->subject->setContents([$bogusOne, $sibling, $bogusTwo]);
+
+        self::assertCount(3, $this->subject->getContents());
+
+        $this->subject->insertBefore($item, $orphan);
+
+        self::assertCount(4, $this->subject->getContents());
+        self::assertSame([$bogusOne, $sibling, $bogusTwo, $item], $this->subject->getContents());
     }
 }

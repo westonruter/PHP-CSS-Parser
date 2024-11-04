@@ -35,7 +35,7 @@ use Sabberworm\CSS\Value\URL;
  * @covers \Sabberworm\CSS\Value\Size::parse
  * @covers \Sabberworm\CSS\Value\URL::parse
  */
-class ParserTest extends TestCase
+final class ParserTest extends TestCase
 {
     /**
      * @test
@@ -146,6 +146,8 @@ class ParserTest extends TestCase
                     'l' => new Size(220.0, '%', true, $oColor->getLineNo()),
                     'a' => new Size(0000.3, null, true, $oColor->getLineNo()),
                 ], $oColor->getColor());
+                $aColorRule = $oRuleSet->getRules('outline-color');
+                self::assertEmpty($aColorRule);
             }
         }
         foreach ($oDoc->getAllValues('color') as $sColor) {
@@ -277,7 +279,7 @@ class ParserTest extends TestCase
             new Selector('ol li::before', true),
         ], $oDoc->getSelectorsBySpecificity('< 100'));
         self::assertEquals([new Selector('li.green', true)], $oDoc->getSelectorsBySpecificity('11'));
-        self::assertEquals([new Selector('ol li::before', true)], $oDoc->getSelectorsBySpecificity(3));
+        self::assertEquals([new Selector('ol li::before', true)], $oDoc->getSelectorsBySpecificity('3'));
     }
 
     /**
@@ -1160,7 +1162,7 @@ body {background-color: red;}';
     /**
      * @test
      */
-    public function flatCommentExtracting()
+    public function flatCommentExtractingOneComment()
     {
         $parser = new Parser('div {/*Find Me!*/left:10px; text-align:left;}');
         $doc = $parser->parse();
@@ -1169,6 +1171,25 @@ body {background-color: red;}';
         $comments = $divRules[0]->getComments();
         self::assertCount(1, $comments);
         self::assertSame("Find Me!", $comments[0]->getComment());
+    }
+
+    /**
+     * @test
+     */
+    public function flatCommentExtractingTwoComments()
+    {
+        self::markTestSkipped('This is currently broken.');
+
+        $parser = new Parser('div {/*Find Me!*/left:10px; /*Find Me Too!*/text-align:left;}');
+        $doc = $parser->parse();
+        $contents = $doc->getContents();
+        $divRules = $contents[0]->getRules();
+        $rule1Comments = $divRules[0]->getComments();
+        $rule2Comments = $divRules[1]->getComments();
+        self::assertCount(1, $rule1Comments);
+        self::assertCount(1, $rule2Comments);
+        self::assertEquals('Find Me!', $rule1Comments[0]->getComment());
+        self::assertEquals('Find Me Too!', $rule2Comments[0]->getComment());
     }
 
     /**

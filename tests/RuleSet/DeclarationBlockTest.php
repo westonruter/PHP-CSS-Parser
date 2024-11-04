@@ -3,14 +3,16 @@
 namespace Sabberworm\CSS\Tests\RuleSet;
 
 use PHPUnit\Framework\TestCase;
+use Sabberworm\CSS\OutputFormat;
 use Sabberworm\CSS\Parser;
 use Sabberworm\CSS\Rule\Rule;
+use Sabberworm\CSS\Settings as ParserSettings;
 use Sabberworm\CSS\Value\Size;
 
 /**
  * @covers \Sabberworm\CSS\RuleSet\DeclarationBlock
  */
-class DeclarationBlockTest extends TestCase
+final class DeclarationBlockTest extends TestCase
 {
     /**
      * @param string $sCss
@@ -33,7 +35,7 @@ class DeclarationBlockTest extends TestCase
     /**
      * @return array<int, array<int, string>>
      */
-    public function expandBorderShorthandProvider()
+    public static function expandBorderShorthandProvider()
     {
         return [
             ['body{ border: 2px solid #000 }', 'body {border-width: 2px;border-style: solid;border-color: #000;}'],
@@ -66,7 +68,7 @@ class DeclarationBlockTest extends TestCase
     /**
      * @return array<int, array<int, string>>
      */
-    public function expandFontShorthandProvider()
+    public static function expandFontShorthandProvider()
     {
         return [
             [
@@ -122,7 +124,7 @@ class DeclarationBlockTest extends TestCase
     /**
      * @return array<int, array<int, string>>
      */
-    public function expandBackgroundShorthandProvider()
+    public static function expandBackgroundShorthandProvider()
     {
         return [
             ['body {border: 1px;}', 'body {border: 1px;}'],
@@ -175,7 +177,7 @@ class DeclarationBlockTest extends TestCase
     /**
      * @return array<int, array<int, string>>
      */
-    public function expandDimensionsShorthandProvider()
+    public static function expandDimensionsShorthandProvider()
     {
         return [
             ['body {border: 1px;}', 'body {border: 1px;}'],
@@ -213,7 +215,7 @@ class DeclarationBlockTest extends TestCase
     /**
      * @return array<int, array<int, string>>
      */
-    public function createBorderShorthandProvider()
+    public static function createBorderShorthandProvider()
     {
         return [
             ['body {border-width: 2px;border-style: solid;border-color: #000;}', 'body {border: 2px solid #000;}'],
@@ -244,7 +246,7 @@ class DeclarationBlockTest extends TestCase
     /**
      * @return array<int, array<int, string>>
      */
-    public function createFontShorthandProvider()
+    public static function createFontShorthandProvider()
     {
         return [
             ['body {font-size: 12px; font-family: serif}', 'body {font: 12px serif;}'],
@@ -287,7 +289,7 @@ class DeclarationBlockTest extends TestCase
     /**
      * @return array<int, array<int, string>>
      */
-    public function createDimensionsShorthandProvider()
+    public static function createDimensionsShorthandProvider()
     {
         return [
             ['body {border: 1px;}', 'body {border: 1px;}'],
@@ -325,7 +327,7 @@ class DeclarationBlockTest extends TestCase
     /**
      * @return array<int, array<int, string>>
      */
-    public function createBackgroundShorthandProvider()
+    public static function createBackgroundShorthandProvider()
     {
         return [
             ['body {border: 1px;}', 'body {border: 1px;}'],
@@ -449,5 +451,58 @@ class DeclarationBlockTest extends TestCase
             ],
             array_map('strval', $oDeclaration->getRulesAssoc())
         );
+    }
+
+    /**
+     * @return array<string, array{0: non-empty-string, 1: non-empty-string}>
+     */
+    public static function declarationBlocksWithCommentsProvider()
+    {
+        return [
+            'CSS comments with one asterisk' => ['p {color: #000;/* black */}', 'p {color: #000;}'],
+            'CSS comments with two asterisks' => ['p {color: #000;/** black */}', 'p {color: #000;}'],
+        ];
+    }
+
+    /**
+     * @test
+     *
+     * @param string $cssWithComments
+     * @param string $cssWithoutComments
+     *
+     * @dataProvider declarationBlocksWithCommentsProvider
+     */
+    public function canRemoveCommentsFromRulesUsingLenientParsing(
+        $cssWithComments,
+        $cssWithoutComments
+    ) {
+        $parserSettings = ParserSettings::create()->withLenientParsing(true);
+        $document = (new Parser($cssWithComments, $parserSettings))->parse();
+
+        $outputFormat = (new OutputFormat())->setRenderComments(false);
+        $renderedDocument = $document->render($outputFormat);
+
+        self::assertSame($cssWithoutComments, $renderedDocument);
+    }
+
+    /**
+     * @test
+     *
+     * @param string $cssWithComments
+     * @param string $cssWithoutComments
+     *
+     * @dataProvider declarationBlocksWithCommentsProvider
+     */
+    public function canRemoveCommentsFromRulesUsingStrictParsing(
+        $cssWithComments,
+        $cssWithoutComments
+    ) {
+        $parserSettings = ParserSettings::create()->withLenientParsing(false);
+        $document = (new Parser($cssWithComments, $parserSettings))->parse();
+
+        $outputFormat = (new OutputFormat())->setRenderComments(false);
+        $renderedDocument = $document->render($outputFormat);
+
+        self::assertSame($cssWithoutComments, $renderedDocument);
     }
 }
