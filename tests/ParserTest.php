@@ -256,6 +256,12 @@ final class ParserTest extends TestCase
                 case "li.green":
                     self::assertSame(11, $oSelector->getSpecificity());
                     break;
+                case "div:not(.foo[title=\"a,b\"], .bar)":
+                    self::assertSame(31, $oSelector->getSpecificity());
+                    break;
+                case "div[title=\"a,b\"]":
+                    self::assertSame(11, $oSelector->getSpecificity());
+                    break;
                 default:
                     self::fail("specificity: untested selector " . $oSelector->getSelector());
             }
@@ -272,13 +278,20 @@ final class ParserTest extends TestCase
             new Selector('.help:hover', true),
             new Selector('li.green', true),
             new Selector('ol li::before', true),
+            new Selector('div:not(.foo[title="a,b"], .bar)', true),
+            new Selector('div[title="a,b"]', true),
         ], $oDoc->getSelectorsBySpecificity('<= 100'));
         self::assertEquals([
             new Selector('.help:hover', true),
             new Selector('li.green', true),
             new Selector('ol li::before', true),
+            new Selector('div:not(.foo[title="a,b"], .bar)', true),
+            new Selector('div[title="a,b"]', true),
         ], $oDoc->getSelectorsBySpecificity('< 100'));
-        self::assertEquals([new Selector('li.green', true)], $oDoc->getSelectorsBySpecificity('11'));
+        self::assertEquals([
+            new Selector('li.green', true),
+            new Selector('div[title="a,b"]', true),
+        ], $oDoc->getSelectorsBySpecificity('11'));
         self::assertEquals([new Selector('ol li::before', true)], $oDoc->getSelectorsBySpecificity('3'));
     }
 
